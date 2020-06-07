@@ -1,7 +1,7 @@
 require('dotenv').config();
 
 const Login = require('./login');
-const Songs = require('./songs');
+const Stats = require('./stats');
 
 const usage = () => {
   const usageText = `
@@ -35,11 +35,12 @@ const cli = (args) => {
       return login.process();
 
     case 'songs':
-      const songs = new Songs();
+      const songs = new Stats({ type: 'tracks' });
       return songs.process({ range: args[3] ? args[3] : '' });
 
-    case 'artist':
-      console.log('artist');
+    case 'artists':
+      const artists = new Stats({ type: 'artists' });
+      return artists.process({ range: args[3] ? args[3] : '' });
       break;
 
     case 'help':

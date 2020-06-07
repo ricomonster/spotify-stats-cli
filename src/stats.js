@@ -4,30 +4,37 @@ const Table = require('cli-table3');
 const Spotify = require('./spotify');
 const Token = require('./token');
 
-class Songs {
-  constructor() {
+class Stats {
+  constructor(opts) {
     this.clientId = process.env.SPOTIFY_CLIENT_ID;
     this.clientSecret = process.env.SPOTIFY_CLIENT_SECRET;
     this.token = new Token();
     this.limit = 50;
+
+    this.type = opts.type;
   }
 
-  async getTracks(token, timeRange = 'short_term') {
+  async getStats(token, timeRange = 'short_term') {
     // Initialize spotify
     const spotify = new Spotify({ accessToken: token });
 
     try {
-      const response = await spotify.getUserTop('tracks', { time_range: timeRange });
+      const response = await spotify.getUserTop(this.type, { time_range: timeRange });
       const { items } = response.data;
 
-      return items;
+      const data = [];
+      items.forEach((item) => {
+        data[item.id] = item;
+      });
+
+      return data;
     } catch (error) {
       if (error && error.response && error.response.status === 401) {
         // Expired token
         const token = await this.refreshAccessTokens();
 
         // retry the request
-        return this.getTracks(token, timeRange);
+        return this.getStats(token, timeRange);
       }
     }
   }
@@ -64,13 +71,24 @@ class Songs {
     }
 
     // Let's go!
-    const tracks = await this.getTracks(token, range);
+    let list = await this.getStats(token, range);
 
     // Save the ranking somewhere
+    await this.saveRankings(this.type, list);
 
     // Render the list
-    console.log(`Your Top ${this.limit} Tracks ${this.renderDuration(range)}.`);
-    return this.renderTrackList(tracks);
+    if (this.type === 'artists') {
+      console.log(`Your Top Artists ${this.renderDuration(range)}.`);
+      return this._renderArtistList(list);
+    }
+
+    if (this.type === 'tracks') {
+      console.log(`Your Top Tracks ${this.renderDuration(range)}.`);
+      return this._renderTrackList(list);
+    }
+
+    console.log('Unknown command.');
+    return false;
   }
 
   async refreshAccessTokens() {
@@ -107,13 +125,41 @@ class Songs {
     }
   }
 
-  renderTrackList(tracks) {
+  saveRankings(type, lists) {
+    const rankings = [];
+
+    Object.keys(lists).forEach((id, index) => {
+      const data = lists[id];
+
+      rankings.push({
+        id: data.id,
+        rank: index + 1,
+      });
+    });
+  }
+
+  _renderArtistList(artists) {
+    // Set table header
+    const table = new Table({
+      head: ['Rank', 'Artist'],
+    });
+
+    Object.keys(artists).forEach((id, index) => {
+      const artist = artists[id];
+      table.push([index + 1, artist.name]);
+    });
+
+    console.log(table.toString());
+  }
+
+  _renderTrackList(tracks) {
     // Set the header
     const table = new Table({
       head: ['Rank', 'Title', 'Artist'],
     });
 
-    tracks.forEach((track, index) => {
+    Object.keys(tracks).forEach((id, index) => {
+      const track = tracks[id];
       const artists = [];
 
       // Get the artists as there's a possibility to have multiple artists
@@ -128,4 +174,4 @@ class Songs {
   }
 }
 
-module.exports = Songs;
+module.exports = Stats;
