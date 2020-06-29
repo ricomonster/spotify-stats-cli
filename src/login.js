@@ -5,16 +5,16 @@ const queryString = require('query-string');
 const url = require('url');
 const axios = require('axios');
 
+const Config = require('./config');
 const Spotify = require('./spotify');
-const Token = require('./token');
 
 class Login {
   constructor() {
-    this.tokenPath = process.env.TOKEN_PATH;
-    this.clientId = process.env.SPOTIFY_CLIENT_ID;
-    this.clientSecret = process.env.SPOTIFY_CLIENT_SECRET;
+    this.config = new Config();
 
-    this.token = new Token();
+    this.clientId = this.config.storage.get('clientId');
+    this.clientSecret = this.config.storage.get('clientSecret');
+    this.accessToken = this.config.storage.get('accessToken');
   }
 
   async getAccessToken(code) {
@@ -29,8 +29,8 @@ class Login {
       const { access_token, refresh_token } = response.data;
 
       // Store the access token and the refresh token?
-      await this.token.storeAccessToken(access_token);
-      await this.token.storeRefreshToken(refresh_token);
+      this.config.storage.set('accessToken', access_token);
+      this.config.storage.set('refreshToken', refresh_token);
 
       return Promise.resolve();
     } catch (error) {
@@ -64,20 +64,18 @@ class Login {
   }
 
   async process() {
-    // Let's check if we have an access token stored.
-    fs.readFile(this.tokenPath, 'utf8', async (error, token) => {
-      if (error !== null || token === '') {
-        // We don't have token so we need to login the user
-        // Open up the browser
-        console.log('Opening up browser to authenticate...');
-        await this.openBrowser();
+    if (!this.accessToken) {
+      // We don't have token so we need to login the user
+      // Open up the browser
+      console.log('Opening up browser to authenticate...');
+      await this.openBrowser();
 
-        // Open up a http server to listen for callback
-        await this.listenForCallback();
-      } else {
-        console.log('You are now already authenticated.');
-      }
-    });
+      // Open up a http server to listen for callback
+      await this.listenForCallback();
+    } else {
+      console.log('You are now already authenticated.');
+      return false;
+    }
   }
 
   async openBrowser() {
