@@ -1,5 +1,6 @@
 const axios = require('axios');
 const Table = require('cli-table3');
+const chalk = require('chalk');
 
 const Config = require('./config');
 const Spotify = require('./spotify');
@@ -39,6 +40,7 @@ class Stats {
       // Compare the current list to the previous one then store it.
       list = await this._storeAndCompareList(list, range);
 
+      this._renderTitle(range);
       if (this.type === 'artists') {
         return this._renderArtistList(list);
       }
@@ -156,6 +158,28 @@ class Stats {
     });
 
     console.log(table.toString());
+  }
+
+  _renderTitle(range) {
+    let rangeTitle;
+
+    switch (range) {
+      case 'long_term':
+        rangeTitle = 'of all time';
+        break;
+
+      case 'medium_term':
+        rangeTitle = 'in the last 6 months';
+        break;
+
+      case 'short_term':
+      default:
+        rangeTitle = 'in the last 4 weeks';
+    }
+
+    console.log(
+      chalk.bold(`You top ${this.type === 'tracks' ? 'songs' : 'artists'} ${rangeTitle}.`)
+    );
   }
 
   _statsFilename(range) {
