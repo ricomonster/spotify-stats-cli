@@ -28,7 +28,7 @@ class Storage {
   }
 
   _createStorageDirectory() {
-    const directoryPath = [process.cwd(), 'storage'].join('/');
+    const directoryPath = [__dirname, 'storage'].join('/');
 
     if (!fs.existsSync(directoryPath)) {
       fs.mkdirSync(directoryPath);

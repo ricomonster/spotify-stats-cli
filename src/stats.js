@@ -108,11 +108,11 @@ class Stats {
       // Set the ranking
       let ranking = artist.ranking;
       if (artist.rankChange === 'up') {
-        ranking = `${ranking} (+${artist.ranking - artist.previousRank})`;
+        ranking = `${ranking} (+${artist.previousRank - artist.ranking})`;
       }
 
       if (artist.rankChange === 'down') {
-        ranking = `${ranking} (-${artist.previousRank - artist.ranking})`;
+        ranking = `${ranking} (-${artist.ranking - artist.previousRank})`;
       }
 
       table.push([ranking, artist.name]);
@@ -147,11 +147,11 @@ class Stats {
       // Set the ranking
       let ranking = track.ranking;
       if (track.rankChange === 'up') {
-        ranking = `${ranking} (+${track.ranking - track.previousRank})`;
+        ranking = `${ranking} (+${track.previousRank - track.ranking})`;
       }
 
       if (track.rankChange === 'down') {
-        ranking = `${ranking} (-${track.previousRank - track.ranking})`;
+        ranking = `${ranking} (-${track.ranking - track.previousRank})`;
       }
 
       table.push([ranking, track.name, artists.join(', ')]);
@@ -198,10 +198,10 @@ class Stats {
     if (storedStats.length > 0) {
       storedStats.forEach((stat, index) => {
         if (storedStats[stat.id]) {
-          storedStats[stat.id] = {};
+          oldStats[stat.id] = {};
         }
 
-        storedStats[stat.id] = stat;
+        oldStats[stat.id] = stat;
       });
     }
 
@@ -209,42 +209,44 @@ class Stats {
     // Loop the new stats
     const toStoredStats = [];
     const toReturnStats = [];
-    let rankChange = 'none';
     Object.keys(list).forEach((id, index) => {
+      let rankChange = 'none';
       // For easy access
       const stat = list[id];
 
       // Compute the ranking
-      const ranking = index + 1;
+      let ranking = index + 1;
 
-      // Check first if it exists in the old stats
-      let previousRank = 0;
+      let previousRank = ranking;
       if (oldStats[stat.id]) {
-        // There's already a saved data
-        if (oldStats[stat.id].ranking !== ranking) {
-          previousRank = oldStats[stat.id].ranking;
+        previousRank = oldStats[stat.id].ranking;
 
-          // There' a change in its rank
-          // Compute
-          if (oldStats[stat.id].ranking > ranking) {
-            rankChange = 'down';
-          }
-
-          if (oldStats[stat.id].ranking < ranking) {
-            rankChange = 'up';
-          }
+        if (ranking === previousRank) {
+          previousRank = oldStats[stat.id].previousRank;
         }
-      } else {
-        // New item
-        previousRank = ranking;
       }
 
+      // There's already a saved data
+      if (previousRank !== ranking) {
+        // There' a change in its rank
+        // Compute
+        if (previousRank > ranking) {
+          rankChange = 'up';
+        }
+
+        if (previousRank < ranking) {
+          rankChange = 'down';
+        }
+      }
+
+      // Push data to be stored for comparison later
       toStoredStats.push({
         id: stat.id,
         ranking,
         previousRank,
       });
 
+      // Push data to display
       toReturnStats.push({
         ...stat,
         ranking,
@@ -256,6 +258,7 @@ class Stats {
     // Save
     await storage.store(toStoredStats);
 
+    // Return the results
     return toReturnStats;
   }
 
