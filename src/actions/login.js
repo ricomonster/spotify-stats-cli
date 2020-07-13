@@ -6,7 +6,7 @@ const url = require('url');
 const axios = require('axios');
 
 const Config = require('./config');
-const Spotify = require('./spotify');
+const Spotify = require('./../services/spotify');
 
 class Login {
   constructor() {

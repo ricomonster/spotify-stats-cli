@@ -1,10 +1,11 @@
 const axios = require('axios');
 const Table = require('cli-table3');
 const chalk = require('chalk');
+const ora = require('ora');
 
 const Config = require('./config');
-const Spotify = require('./spotify');
-const Storage = require('./storage');
+const Spotify = require('./../services/spotify');
+const Storage = require('./../services/storage');
 
 class Stats {
   constructor(opts) {
@@ -34,11 +35,20 @@ class Stats {
         return false;
       }
 
+      // Show spinner
+      const spinner = ora('Fetching...').start();
+
       // Let's fetch our list
       let list = await this._getStats(token, range);
 
+      // Update spinner text
+      spinner.text = 'Sorting...';
+
       // Compare the current list to the previous one then store it.
       list = await this._storeAndCompareList(list, range);
+
+      // Hide spinner
+      spinner.stop();
 
       this._renderTitle(range);
       if (this.type === 'artists') {

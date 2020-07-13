@@ -1,8 +1,8 @@
 const minimist = require('minimist');
 
-const Config = require('./config');
-const Login = require('./login');
-const Stats = require('./stats');
+const Config = require('./actions/config');
+const Login = require('./actions/login');
+const Stats = require('./actions/stats');
 
 const usage = () => {
   const usageText = `

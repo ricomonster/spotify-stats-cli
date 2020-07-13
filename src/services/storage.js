@@ -28,7 +28,7 @@ class Storage {
   }
 
   _createStorageDirectory() {
-    const directoryPath = [__dirname, 'storage'].join('/');
+    const directoryPath = [__dirname, '../..', 'storage'].join('/');
 
     if (!fs.existsSync(directoryPath)) {
       fs.mkdirSync(directoryPath);
@@ -43,7 +43,8 @@ class Storage {
     }
 
     return [
-      process.cwd(),
+      __dirname,
+      '../..',
       'storage',
       this.file.indexOf('.json') === -1 ? `${this.file}.json` : this.file,
     ].join('/');
