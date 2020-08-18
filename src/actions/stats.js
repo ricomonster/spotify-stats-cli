@@ -197,6 +197,8 @@ class Stats {
   }
 
   async _storeAndCompareList(list, range) {
+    const currentTimestamp = Math.round(new Date().getTime() / 1000);
+
     // Retrieve first if we have an existing list
     // Generate first the file we're going to retrieve
     const filename = this._statsFilename(range);
@@ -221,6 +223,7 @@ class Stats {
     const toReturnStats = [];
     Object.keys(list).forEach((id, index) => {
       let rankChange = 'none';
+      let timestamp = currentTimestamp;
       // For easy access
       const stat = list[id];
 
@@ -232,7 +235,25 @@ class Stats {
         previousRank = oldStats[stat.id].ranking;
 
         if (ranking === previousRank) {
+          // Set the previous rank
           previousRank = oldStats[stat.id].previousRank;
+
+          if (oldStats[stat.id].timestamp) {
+            // Set timestamp to the timestamp from the storage
+            timestamp = oldStats[stat.id].timestamp;
+
+            // Compute
+            const difference = currentTimestamp - oldStats[stat.id].timestamp;
+
+            // Ranking is the same for the last 2 days
+            if (difference >= 172800) {
+              // Set previous rank to the current rank
+              previousRank = ranking;
+
+              // Update to the current
+              timestamp = currentTimestamp;
+            }
+          }
         }
       }
 
@@ -254,6 +275,7 @@ class Stats {
         id: stat.id,
         ranking,
         previousRank,
+        timestamp,
       });
 
       // Push data to display
