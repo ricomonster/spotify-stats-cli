@@ -3,6 +3,7 @@ const minimist = require('minimist');
 const Config = require('./actions/config');
 const Login = require('./actions/login');
 const Stats = require('./actions/stats');
+const RecentlyPlayed = require('./actions/recently-played');
 
 const usage = () => {
   const usageText = `
@@ -44,7 +45,10 @@ const cli = (args) => {
     case 'artists':
       const artists = new Stats({ type: 'artists' });
       return artists.process(argv);
-      break;
+
+    case 'recently-played':
+      const recentlyPlayed = new RecentlyPlayed();
+      return recentlyPlayed.process();
 
     case 'help':
     default:

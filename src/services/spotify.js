@@ -16,11 +16,22 @@ class Spotify {
     });
   }
 
+  getRecentlyPlayed() {
+    this._validateCredentials();
+
+    return axios.get(`https://api.spotify.com/v1/me/player/recently-played`, {
+      params: {
+        limit: 50,
+      },
+      headers: {
+        Authorization: `Bearer ${this.accessToken}`,
+      },
+    });
+  }
+
   getUserTop(type, params = {}) {
-    // Before we proceed, let's check if there's access token provided
-    if (!this.accessToken || this.accessToken.length < 1) {
-      throw new Error('Access token is required.');
-    }
+    // Validates the client id and secret
+    this._validateCredentials();
 
     return axios.get(`https://api.spotify.com/v1/me/top/${type}`, {
       params: {
@@ -57,6 +68,15 @@ class Spotify {
         Authorization: `Basic ${authorizationToken}`,
       },
     });
+  }
+
+  _validateCredentials() {
+    // Before we proceed, let's check if there's access token provided
+    if (!this.accessToken || this.accessToken.length < 1) {
+      throw new Error('Access token is required.');
+    }
+
+    return true;
   }
 }
 

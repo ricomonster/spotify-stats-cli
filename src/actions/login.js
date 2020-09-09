@@ -73,7 +73,7 @@ class Login {
       // Open up a http server to listen for callback
       await this.listenForCallback();
     } else {
-      console.log('You are now already authenticated.');
+      console.log('You are already authenticated.');
       return false;
     }
   }
@@ -84,7 +84,7 @@ class Login {
       client_id: this.clientId,
       response_type: 'code',
       redirect_uri: 'http://localhost:5000/callback',
-      scope: 'user-read-private,user-read-email,user-top-read',
+      scope: 'user-read-private,user-read-email,user-top-read,user-read-recently-played',
     };
 
     const browserUrl = `${url}?${queryString.stringify(params)}`;
