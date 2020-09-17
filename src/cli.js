@@ -10,7 +10,7 @@ const usage = () => {
   Spotify Stats CLI.
 
   usage:
-    spotify-stats-cli [command] <options>
+    spotify-stats [command] <options>
 
   commands can be:
 
@@ -18,6 +18,7 @@ const usage = () => {
     songs             returns your top 50 songs
     artists           returns your top 50 artists
     config            set your Spotify Client ID and Client Secret.
+    recently-played   shows your recently played tracks.
 
   options:
     --help            show help
