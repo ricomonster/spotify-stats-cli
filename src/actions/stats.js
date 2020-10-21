@@ -115,13 +115,14 @@ class Stats {
 
     artists.forEach((artist) => {
       // Set the ranking
-      let ranking = artist.ranking;
-      if (artist.rankChange === 'up') {
-        ranking = `${ranking} (+${artist.previousRank - artist.ranking})`;
-      }
+      const { ranking: rankNumber, rankState, rankChange } = artist;
 
-      if (artist.rankChange === 'down') {
-        ranking = `${ranking} (-${artist.ranking - artist.previousRank})`;
+      // Determine what to show for rank change
+      let ranking = rankNumber;
+      if (rankState === 'new') {
+        ranking = `${ranking} (new)`;
+      } else {
+        ranking = `${ranking}${rankState === 'none' ? '' : ` (${rankChange})`}`;
       }
 
       table.push([ranking, artist.name]);
@@ -133,9 +134,9 @@ class Stats {
   _renderHelp() {
     console.log(`
   options:
-    --4weeks    default option. fetches the stats approx. the last 4 weeks
-    --6months   fetches the stats approx. the last 6 months
-    --alltime   fetches the stats all time if possibly.
+    --last4weeks    default option. fetches the stats approx. the last 4 weeks
+    --last6months   fetches the stats approx. the last 6 months
+    --alltime       fetches the stats all time if possibly.
     `);
   }
 
@@ -147,20 +148,19 @@ class Stats {
 
     tracks.forEach((track, index) => {
       const artists = [];
+      const { artists: trackArtists, ranking: rankNumber, rankChange, rankState } = track;
 
       // Get the artists as there's a possibility to have multiple artists
-      track.artists.forEach((artist) => {
+      trackArtists.forEach((artist) => {
         artists.push(artist.name);
       });
 
-      // Set the ranking
-      let ranking = track.ranking;
-      if (track.rankChange === 'up') {
-        ranking = `${ranking} (+${track.previousRank - track.ranking})`;
-      }
-
-      if (track.rankChange === 'down') {
-        ranking = `${ranking} (-${track.ranking - track.previousRank})`;
+      // Determine what to show for rank change
+      let ranking = rankNumber;
+      if (rankState === 'new') {
+        ranking = `${ranking} (new)`;
+      } else {
+        ranking = `${ranking}${rankState === 'none' ? '' : ` (${rankChange})`}`;
       }
 
       table.push([ranking, track.name, artists.join(', ')]);
@@ -186,9 +186,7 @@ class Stats {
         rangeTitle = 'in the last 4 weeks';
     }
 
-    console.log(
-      chalk.bold(`You top ${this.type === 'tracks' ? 'songs' : 'artists'} ${rangeTitle}.`)
-    );
+    console.log(chalk.bold(`You top ${this.type} ${rangeTitle}.`));
   }
 
   _statsFilename(range) {
@@ -221,7 +219,8 @@ class Stats {
     const toStoredStats = [];
     const toReturnStats = [];
     Object.keys(list).forEach((id, index) => {
-      let rankChange = 'none';
+      let rankState = 'none';
+      let rankChange = 0;
       let timestamp = currentTimestamp;
       // For easy access
       const stat = list[id];
@@ -254,6 +253,9 @@ class Stats {
             }
           }
         }
+      } else {
+        // This is a new record coming in.
+        rankState = 'new';
       }
 
       // There's already a saved data
@@ -261,11 +263,13 @@ class Stats {
         // There' a change in its rank
         // Compute
         if (previousRank > ranking) {
-          rankChange = 'up';
+          rankState = 'up';
+          rankChange = `+${previousRank - ranking}`;
         }
 
         if (previousRank < ranking) {
-          rankChange = 'down';
+          rankState = 'down';
+          rankChange = `-${ranking - previousRank}`;
         }
       }
 
@@ -283,6 +287,7 @@ class Stats {
         ranking,
         previousRank,
         rankChange,
+        rankState,
       });
     });
 
@@ -304,12 +309,12 @@ class Stats {
 
     // Loop the args
     Object.keys(args).forEach((arg) => {
-      if (!['4weeks', '6months', 'alltime', 'help', '_'].includes(arg)) {
+      if (!['last4weeks', 'last6months', 'alltime', 'help', '_'].includes(arg)) {
         unknownOption = true;
         options.push(arg);
       }
 
-      if (['4weeks', '6months', 'alltime'].includes(arg)) {
+      if (['last4weeks', 'last6months', 'alltime'].includes(arg)) {
         ranges.push(arg);
       }
 
@@ -333,7 +338,7 @@ class Stats {
       throw new Error('MultipleRange');
     } else {
       switch (ranges[0]) {
-        case '6months':
+        case 'last6months':
           range = 'medium_term';
           break;
 
@@ -341,7 +346,7 @@ class Stats {
           range = 'long_term';
           break;
 
-        case '4weeks':
+        case 'last4weeks':
         default:
           range = 'short_term';
           break;

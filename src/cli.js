@@ -14,8 +14,8 @@ const usage = () => {
 
   commands can be:
 
-    login             in order to retrieve the songs/artists you need to login first
-    songs             returns your top 50 songs
+    login             in order to retrieve the tracks/artists you need to login first
+    tracks            returns your top 50 tracks/songs
     artists           returns your top 50 artists
     config            set your Spotify Client ID and Client Secret.
     recently-played   shows your recently played tracks.
@@ -39,9 +39,9 @@ const cli = (args) => {
       const login = new Login();
       return login.process();
 
-    case 'songs':
-      const songs = new Stats({ type: 'tracks' });
-      return songs.process(argv);
+    case 'tracks':
+      const tracks = new Stats({ type: 'tracks' });
+      return tracks.process(argv);
 
     case 'artists':
       const artists = new Stats({ type: 'artists' });
