@@ -2,13 +2,13 @@ const Table = require('cli-table3');
 const chalk = require('chalk');
 const ora = require('ora');
 
-const Config = require('./config');
+const Auth = require('./../services/auth');
 const Spotify = require('./../services/spotify');
 const Storage = require('./../services/storage');
 
 class Stats {
   constructor(opts) {
-    this.config = new Config();
+    this.auth = new Auth();
 
     this.limit = 50;
     this.type = opts.type;
@@ -27,10 +27,9 @@ class Stats {
       }
 
       // Check first if the user is already authenticated
-      const token = this.config.storage.get('accessToken');
-
+      const token = this.auth.getToken();
       if (!token) {
-        console.log('Not yet authenticated! Run spotify-stats- login to authenticate');
+        console.log('Not yet authenticated! Run spotify-stats login to authenticate');
         return false;
       }
 

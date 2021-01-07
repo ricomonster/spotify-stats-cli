@@ -1,53 +1,34 @@
-const fs = require('fs');
+const Conf = require('conf');
 
 class Storage {
-  constructor(opts) {
-    this.file = opts.file;
-  }
-
-  get() {
-    const file = this._generateFilename();
-
-    return new Promise((resolve) => {
-      fs.stat(file, (err) => {
-        if (err) {
-          return resolve([]);
-        }
-
-        const raw = fs.readFileSync(file);
-        return resolve(JSON.parse(raw));
-      });
+  constructor() {
+    this.conf = new Conf({
+      clientId: {
+        type: 'string',
+      },
+      clientSecret: {
+        type: 'string',
+      },
+      accessToken: {
+        type: 'string',
+      },
+      refreshToken: {
+        type: 'string',
+      },
     });
   }
 
-  store(data) {
-    this._createStorageDirectory();
-
-    const file = this._generateFilename();
-    return fs.writeFileSync(file, JSON.stringify(data));
+  clear() {
+    return this.conf.clear();
   }
 
-  _createStorageDirectory() {
-    const directoryPath = [__dirname, '../..', 'storage'].join('/');
-
-    if (!fs.existsSync(directoryPath)) {
-      fs.mkdirSync(directoryPath);
-    }
-
-    return true;
+  fetch(key) {
+    return this.conf.get(key);
   }
 
-  _generateFilename() {
-    if (!this.file) {
-      throw new Error('File missing');
-    }
-
-    return [
-      __dirname,
-      '../..',
-      'storage',
-      this.file.indexOf('.json') === -1 ? `${this.file}.json` : this.file,
-    ].join('/');
+  store(key, value) {
+    this.conf.set(key, value);
+    return this;
   }
 }
 

@@ -1,61 +1,49 @@
-const minimist = require('minimist');
+const { Command, program } = require('commander');
 
+// Actions
 const Config = require('./actions/config');
-const Login = require('./actions/login');
-const Stats = require('./actions/stats');
-const RecentlyPlayed = require('./actions/recently-played');
 
-const usage = () => {
-  const usageText = `
-  Spotify Stats CLI.
+const cli = () => {
+  program.version('1.1.0').description('Spotify Stats CLI.');
 
-  usage:
-    spotify-stats [command] <options>
-
-  commands can be:
-
-    login             in order to retrieve the tracks/artists you need to login first
-    tracks            returns your top 50 tracks/songs
-    artists           returns your top 50 artists
-    config            set your Spotify Client ID and Client Secret.
-    recently-played   shows your recently played tracks.
-
-  options:
-    --help            show help
-  `;
-
-  console.log(usageText);
-};
-
-const cli = (args) => {
-  const argv = minimist(args);
-
-  switch (argv._[2]) {
-    case 'config':
+  // Build out the commands
+  // Config Command
+  program
+    .command('config')
+    .description('set your Spotify Client ID and Client Secret.')
+    .requiredOption('--clientId <clientId>', 'sets or shows the Client ID.')
+    .requiredOption('--clientSecret <clientSecret>', 'sets or shows the Client Secret.')
+    .action(async (cmd) => {
       const config = new Config();
-      return config.process(argv);
+      const result = await config.execute({
+        clientId: cmd.clientId,
+        clientSecret: cmd.clientSecret,
+      });
+    });
 
-    case 'login':
-      const login = new Login();
-      return login.process();
+  // Track Stats Command
+  program
+    .command('tracks')
+    .description('returns your top 50 tracks/songs.')
+    .option('--last4weeks', 'fetches the stats approx. the last 4 weeks.')
+    .option('--last6months', 'fetches the stats approx. the last 6 months.')
+    .option('--alltime', 'fetches the stats all time if possibly.')
+    .action((cmd) => {
+      let timeline = 'short_term';
 
-    case 'tracks':
-      const tracks = new Stats({ type: 'tracks' });
-      return tracks.process(argv);
+      // Determine the timeline of the stats that we're going to fetch.
+      if (cmd.last6months) {
+        timeline = 'medium_term';
+      }
 
-    case 'artists':
-      const artists = new Stats({ type: 'artists' });
-      return artists.process(argv);
+      if (cmd.alltime) {
+        timeline = 'long_term';
+      }
+    });
 
-    case 'recently-played':
-      const recentlyPlayed = new RecentlyPlayed();
-      return recentlyPlayed.process();
+  program.parseAsync(process.argv);
 
-    case 'help':
-    default:
-      usage();
-      break;
-  }
+  // console.log(program);
 };
 
 module.exports = cli;

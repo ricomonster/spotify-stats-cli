@@ -1,27 +1,42 @@
 {
-  "name": "spotify-stats-cli",
-  "version": "1.0.0",
-  "description": "",
+  "name": "spotify-stats",
+  "version": "1.1.0",
+  "description": "Check your Spotify top tracks and artists in your terminal.",
   "main": "src/index.js",
-  "bin": {
-    "spotify-stats-cli": "./bin/spotify-stats-cli",
-    "spotify-stats": "./bin/spotify-stats-cli"
-  },
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "nyc npm run test:unit",
+    "test:unit": "cross-env NODE_PATH=. NODE_ENV=test mocha --config test/unit.mocharc.js"
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ricomonster/spotify-stats-cli.git"
+  },
+  "keywords": [
+    "spotify",
+    "cli",
+    "stats"
+  ],
+  "author": "Rico Maglayon",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/ricomonster/spotify-stats-cli/issues"
+  },
+  "homepage": "https://github.com/ricomonster/spotify-stats-cli#readme",
   "dependencies": {
-    "axios": "^0.19.2",
+    "axios": "^0.21.0",
     "chalk": "^4.1.0",
     "cli-table3": "^0.6.0",
-    "conf": "^6.2.4",
-    "dotenv": "^8.2.0",
-    "minimist": "^1.2.5",
-    "open": "^7.0.4",
-    "ora": "^4.0.4",
-    "query-string": "^6.12.1"
+    "commander": "^6.2.0",
+    "conf": "^7.1.2",
+    "cross-env": "^7.0.3",
+    "open": "^7.3.0",
+    "ora": "^5.1.0",
+    "query-string": "^6.13.7"
+  },
+  "devDependencies": {
+    "chai": "^4.2.0",
+    "mocha": "^8.2.1",
+    "nyc": "^15.1.0",
+    "sinon": "^9.2.1"
   }
 }

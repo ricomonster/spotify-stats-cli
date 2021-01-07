@@ -1,11 +1,11 @@
 const axios = require('axios');
-const queryString = require('query-string');
+const qs = require('query-string');
 
 class Spotify {
   constructor(opts) {
-    this.clientId = opts.clientId || '';
-    this.clientSecret = opts.clientSecret || '';
-    this.accessToken = opts.accessToken || '';
+    this.clientId = opts && opts.clientId ? opts.clientId : '';
+    this.clientSecret = opts && opts.clientSecret ? opts.clientSecret : '';
+    this.accessToken = opts && opts.accessToken ? opts.accessToken : '';
   }
 
   getAccessToken(code) {
@@ -13,42 +13,6 @@ class Spotify {
       grant_type: 'authorization_code',
       code,
       redirect_uri: 'http://localhost:5000/callback',
-    });
-  }
-
-  getRecentlyPlayed() {
-    this._validateCredentials();
-
-    return axios.get(`https://api.spotify.com/v1/me/player/recently-played`, {
-      params: {
-        limit: 50,
-      },
-      headers: {
-        Authorization: `Bearer ${this.accessToken}`,
-      },
-    });
-  }
-
-  getUserTop(type, params = {}) {
-    // Validates the client id and secret
-    this._validateCredentials();
-
-    return axios.get(`https://api.spotify.com/v1/me/top/${type}`, {
-      params: {
-        ...params,
-        limit: 50,
-        time_range: params.time_range || 'short_term',
-      },
-      headers: {
-        Authorization: `Bearer ${this.accessToken}`,
-      },
-    });
-  }
-
-  refreshTokens(refreshToken) {
-    return this._tokenRequest({
-      grant_type: 'refresh_token',
-      refresh_token: refreshToken,
     });
   }
 
@@ -62,21 +26,12 @@ class Spotify {
       'base64'
     );
 
-    return axios.post(`https://accounts.spotify.com/api/token`, queryString.stringify(params), {
+    return axios.post(`https://accounts.spotify.com/api/token`, qs.stringify(params), {
       headers: {
         'Content-Type': 'application/x-www-form-urlencoded',
         Authorization: `Basic ${authorizationToken}`,
       },
     });
-  }
-
-  _validateCredentials() {
-    // Before we proceed, let's check if there's access token provided
-    if (!this.accessToken || this.accessToken.length < 1) {
-      throw new Error('Access token is required.');
-    }
-
-    return true;
   }
 }
 
