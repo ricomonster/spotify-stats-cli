@@ -1,34 +1,76 @@
+const { rejects } = require('assert');
 const fs = require('fs');
+const path = require('path');
 
 class Storage {
-  constructor(opts) {
-    this.file = opts.file;
+  constructor(filename) {
+    this.filename = filename;
   }
 
-  get() {
-    const file = this._generateFilename();
+  /**
+   * Fetches the contents of the file.
+   *
+   * @returns {*}
+   */
+  async get() {
+    // Generate the filename
+    const filename = this._generateFilename();
+
+    // Does it exists?
+    if (!fs.existsSync(filename)) {
+      throw new Error('File does not exists.');
+    }
 
     return new Promise((resolve) => {
-      fs.stat(file, (err) => {
-        if (err) {
-          return resolve([]);
+      fs.stat(filename, (err) => {
+        if (!err) {
+          const raw = fs.readFileSync(filename);
+          return resolve(raw);
         }
-
-        const raw = fs.readFileSync(file);
-        return resolve(JSON.parse(raw));
       });
     });
   }
 
-  store(data) {
+  /**
+   * Creates a file or store the contents to the file.
+   *
+   * @params {*} data
+   * @returns {String}
+   */
+  async store(data) {
+    // Check the storage directory first
     this._createStorageDirectory();
 
-    const file = this._generateFilename();
-    return fs.writeFileSync(file, JSON.stringify(data));
+    // Generate the filename
+    const filename = this._generateFilename();
+
+    // Write the file
+    const file = await fs.writeFileSync(filename, data);
+
+    // Return the filename
+    return filename;
   }
 
+  async remove() {
+    // Get the filename
+    const filename = this._generateFilename();
+
+    // Does it exists?
+    if (!fs.existsSync(filename)) {
+      throw new Error('File does not exists.');
+    }
+
+    // Remove it
+    return fs.unlinkSync(filename);
+  }
+
+  /**
+   * Creates a storage directory.
+   *
+   * @returns {Boolean}
+   */
   _createStorageDirectory() {
-    const directoryPath = [__dirname, '../..', 'storage'].join('/');
+    const directoryPath = path.join(path.resolve('./'), 'storage');
 
     if (!fs.existsSync(directoryPath)) {
       fs.mkdirSync(directoryPath);
@@ -37,16 +79,20 @@ class Storage {
     return true;
   }
 
+  /**
+   * Generates the file path of the file given.
+   *
+   * @returns {String}
+   */
   _generateFilename() {
-    if (!this.file) {
-      throw new Error('File missing');
+    if (!this.filename) {
+      throw new Error('Filename is required.');
     }
 
     return [
-      __dirname,
-      '../..',
+      path.resolve('./'),
       'storage',
-      this.file.indexOf('.json') === -1 ? `${this.file}.json` : this.file,
+      this.filename.indexOf('.json') === -1 ? `${this.filename}.json` : this.filename,
     ].join('/');
   }
 }
