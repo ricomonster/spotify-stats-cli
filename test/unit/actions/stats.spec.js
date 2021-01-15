@@ -1,5 +1,6 @@
 const { expect } = require('chai');
 const sinon = require('sinon');
+
 const sandbox = sinon.createSandbox();
 
 // Actions
@@ -16,7 +17,7 @@ describe('Actions :: Stats', () => {
   context('should work properly', () => {
     let statsClass;
 
-    afterEach(function () {
+    afterEach(() => {
       sandbox.restore();
     });
 

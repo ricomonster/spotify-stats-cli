@@ -1,5 +1,4 @@
 const { expect, assert } = require('chai');
-const sinon = require('sinon');
 const fs = require('fs');
 
 const Storage = require('src/services/storage');

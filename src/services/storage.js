@@ -1,4 +1,3 @@
-const { rejects } = require('assert');
 const fs = require('fs');
 const path = require('path');
 
@@ -27,6 +26,8 @@ class Storage {
           const raw = fs.readFileSync(filename);
           return resolve(raw);
         }
+
+        return false;
       });
     });
   }
@@ -45,7 +46,7 @@ class Storage {
     const filename = this._generateFilename();
 
     // Write the file
-    const file = await fs.writeFileSync(filename, data);
+    await fs.writeFileSync(filename, data);
 
     // Return the filename
     return filename;
