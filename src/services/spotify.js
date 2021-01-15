@@ -18,7 +18,7 @@ class Spotify {
     return this._tokenRequest({
       grant_type: 'authorization_code',
       code,
-      redirect_uri: 'http://localhost:5000/callback',
+      redirect_uri: 'http://localhost:8080/callback',
     });
   }
 

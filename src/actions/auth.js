@@ -89,7 +89,7 @@ class Auth {
     const params = {
       client_id: clientId,
       response_type: 'code',
-      redirect_uri: 'http://localhost:5000/callback',
+      redirect_uri: 'http://localhost:8080/callback',
       scope: 'user-read-private,user-read-email,user-top-read,user-read-recently-played',
     };
 
@@ -120,7 +120,7 @@ class Auth {
             return resolve(code);
           }
         })
-        .listen(5000);
+        .listen(8080);
     });
   }
 }

@@ -28,7 +28,7 @@ class Sort {
 
         // Compute the rank
         let rank = index + 1;
-        let previousRank = rank;
+        let previousRank = 0;
         let state = 'none';
         let change = 0;
         let timestamp = currentTimestamp;
@@ -46,17 +46,21 @@ class Sort {
         }
 
         // Let's check if there's a change in the rank
-        if (rank !== previousRank) {
-          // There' a change in its rank
-          // Compute
-          if (previousRank > rank) {
-            state = 'up';
-            change = previousRank - rank;
-          }
+        if (previousRank === 0) {
+          state = 'new';
+        } else {
+          if (rank !== previousRank) {
+            // There' a change in its rank
+            // Compute
+            if (previousRank > rank) {
+              state = 'up';
+              change = previousRank - rank;
+            }
 
-          if (previousRank < rank) {
-            state = 'down';
-            change = rank - previousRank;
+            if (previousRank < rank) {
+              state = 'down';
+              change = rank - previousRank;
+            }
           }
         }
 
