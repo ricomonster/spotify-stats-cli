@@ -33,6 +33,9 @@ jobs:
       - name: Run Coverage
         run: npm run coverage
 
+      - name: Checking directory
+        run: ls -la && cd .. && ls -la
+
       - name: Coveralls
         uses: coverallsapp/github-action@master
         env:
@@ -42,9 +45,6 @@ jobs:
           flag-name: ${{matrix.os}}-node-${{ matrix.node }}
           parallel: true
           path-to-lcov: ./output/coverage/lcov.info
-
-      - name: Checking directory
-        run: ls -la && cd .. && ls -la
 
   finish:
     needs: test
