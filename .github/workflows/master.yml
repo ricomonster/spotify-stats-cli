@@ -33,18 +33,14 @@ jobs:
       - name: Run Coverage
         run: npm run coverage
 
-      - name: Checking directory
-        run: ls -la && cd .. && ls -la
-
       - name: Coveralls
         uses: coverallsapp/github-action@master
         env:
           NODE_COVERALLS_DEBUG: 1
         with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          flag-name: ${{matrix.os}}-node-${{ matrix.node }}
+          github-token: ${{ secrets.github_token }}
           parallel: true
-          path-to-lcov: ./output/coverage/lcov.info
+          path-to-lcov: ${{ github.workspace }}/coverage/lcov.info
 
   finish:
     needs: test
@@ -53,5 +49,5 @@ jobs:
       - name: Coveralls Finished
         uses: coverallsapp/github-action@v1.1.0
         with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
+          github-token: ${{ secrets.github_token }}
           parallel-finished: true
