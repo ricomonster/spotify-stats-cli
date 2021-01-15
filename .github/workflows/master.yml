@@ -38,9 +38,9 @@ jobs:
         env:
           NODE_COVERALLS_DEBUG: 1
         with:
-          github-token: ${{ secrets.github_token }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          flag-name: ${{matrix.os}}-node-${{ matrix.node }}
           parallel: true
-          flag-name: run-${{ matrix.test_number }}
 
   finish:
     needs: test
@@ -49,5 +49,5 @@ jobs:
       - name: Coveralls Finished
         uses: coverallsapp/github-action@v1.1.0
         with:
-          github-token: ${{ secrets.github_token }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
           parallel-finished: true
