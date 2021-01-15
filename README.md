@@ -2,6 +2,8 @@
 
 Check your Spotify top tracks and artists in your terminal.
 
+[![spotify-stats Actions Status](https://github.com/ricomonster/spotify-stats-cli/workflows/spotify-stats/badge.svg)](https://github.com/ricomonster/spotify-stats-cli/actions) [![Coverage Status](https://coveralls.io/repos/github/ricomonster/spotify-stats-cli/badge.svg)](https://coveralls.io/github/ricomonster/spotify-stats-cli)
+
 ### Install
 
 So far no plans to put this in npm.
