@@ -1,12 +1,12 @@
-name: spotify-stats-develop
+name: spotify-stats
 
 on:
   pull_request:
-    branches: develop
+    branches: master
 
   push:
     branches:
-      - develop
+      - master
 
 jobs:
   test:
