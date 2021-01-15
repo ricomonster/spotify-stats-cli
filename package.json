@@ -23,7 +23,7 @@
   },
   "homepage": "https://github.com/ricomonster/spotify-stats-cli#readme",
   "dependencies": {
-    "axios": "^0.21.0",
+    "axios": "^0.21.1",
     "chalk": "^4.1.0",
     "cli-table3": "^0.6.0",
     "commander": "^6.2.0",
