@@ -8,12 +8,12 @@ const url = require('url');
 const log = console.log;
 
 // Services
-const Storage = require('./../services/storage');
+const Configuration = require('./../services/configuration');
 const Spotify = require('./../services/spotify');
 
 class Auth {
   constructor() {
-    this.storage = new Storage();
+    this.configuration = new Configuration();
   }
 
   async process() {
@@ -42,8 +42,8 @@ class Auth {
       );
 
       // Save the tokens
-      this.storage.store('accessToken', accessToken);
-      this.storage.store('refreshToken', refreshToken);
+      this.configuration.store('accessToken', accessToken);
+      this.configuration.store('refreshToken', refreshToken);
 
       spinner.stop();
       log(chalk.green('You can now start fetching your stats. :)'));
@@ -75,8 +75,8 @@ class Auth {
    * Fetches the clientId and clientSecret
    */
   _getClientKeys() {
-    const clientId = this.storage.fetch('clientId');
-    const clientSecret = this.storage.fetch('clientSecret');
+    const clientId = this.configuration.fetch('clientId');
+    const clientSecret = this.configuration.fetch('clientSecret');
 
     return { clientId, clientSecret };
   }

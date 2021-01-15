@@ -5,10 +5,11 @@ const log = console.log;
 const Auth = require('./auth');
 
 // Services
-const Storage = require('./../services/storage');
+const Configuration = require('./../services/configuration');
+
 class Config {
   constructor() {
-    this.storage = new Storage();
+    this.configuration = new Configuration();
     this.auth = new Auth();
   }
 
@@ -34,8 +35,8 @@ class Config {
   }
 
   storeCredentials(clientId, clientSecret) {
-    this.storage.store('clientId', clientId);
-    this.storage.store('clientSecret', clientSecret);
+    this.configuration.store('clientId', clientId);
+    this.configuration.store('clientSecret', clientSecret);
   }
 }
 

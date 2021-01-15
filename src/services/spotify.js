@@ -8,6 +8,12 @@ class Spotify {
     this.accessToken = opts && opts.accessToken ? opts.accessToken : '';
   }
 
+  /**
+   * Fetches the access and refresh token using the code given by Spotify after authorization.
+   *
+   * @param {String} code
+   * @returns {Promise}
+   */
   getAccessToken(code) {
     return this._tokenRequest({
       grant_type: 'authorization_code',
@@ -16,6 +22,49 @@ class Spotify {
     });
   }
 
+  /**
+   * Fetches the user's top stats for either artists or tracks.
+   *
+   * @param {String} type
+   * @param {Object} params
+   * @returns {Error|Promise}
+   */
+  getUserTop(type, params = {}) {
+    // Validate
+    this._validateAccessToken();
+
+    // Perform the request
+    return axios.get(`https://api.spotify.com/v1/me/top/${type}`, {
+      params: {
+        ...params,
+        limit: 50,
+        time_range: params.time_range || 'short_term',
+      },
+      headers: {
+        Authorization: `Bearer ${this.accessToken}`,
+      },
+    });
+  }
+
+  /**
+   * Validates if the access token is provided.
+   *
+   * @returns {Error|Boolean}
+   */
+  _validateAccessToken() {
+    if (!this.accessToken || this.accessToken.length < 1) {
+      throw new Error('Access token is required.');
+    }
+
+    return true;
+  }
+
+  /**
+   * Validates the credentials and setups the request to fetch the tokens from Spotify.
+   *
+   * @param {String} params
+   * @returns {Promise}
+   */
   _tokenRequest(params) {
     if (!this.clientId || !this.clientSecret) {
       throw new Error('Client ID or Secret is required.');

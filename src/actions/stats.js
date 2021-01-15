@@ -1,0 +1,88 @@
+// Dependencies
+const ora = require('ora');
+
+// Services
+const Configuration = require('./../services/configuration');
+const Spotify = require('./../services/spotify');
+
+class Stats {
+  constructor() {
+    this.configuration = new Configuration();
+  }
+
+  async execute(args) {
+    const { type, timeline } = args;
+
+    try {
+      // Let's validate first
+      this._validate(args);
+
+      // Now let's get the access tokens so we can prepare our request to Spotify API
+      const accessToken = this.configuration.fetch('accessToken');
+      if (!accessToken) {
+        throw new Error('Access token is required.');
+      }
+
+      // Show spinner
+      const spinner = ora('Fetching...').start();
+
+      // Fetch the list
+      const stats = await this._getStats(type, timeline, accessToken);
+
+      // Hide spinner
+      spinner.stop();
+
+      // Return whatever we have
+      return stats;
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  /**
+   * Fetch the stats from Spotify.
+   *
+   * @param {String} type
+   * @param {String} timeline
+   * @param {String} accessToken
+   * @returns {Object}
+   */
+  async _getStats(type, timeline, accessToken) {
+    const spotify = new Spotify({ accessToken });
+
+    try {
+      const response = await spotify.getUserTop(type, { time_range: timeline });
+      const { items } = response.data;
+
+      return items;
+    } catch (error) {
+      console.error(error);
+    }
+  }
+
+  /**
+   * Validate the necessary requirements for this functionality.
+   *
+   * @param {Object} args
+   * @returns {Error}
+   */
+  _validate(args) {
+    if (!args.type) {
+      throw new Error('Type of the stat to be fetched is required.');
+    }
+
+    if (!args.timeline) {
+      throw new Error('Timeline of the stats to be fetched is required.');
+    }
+
+    if (!['tracks', 'artists'].includes(args.type)) {
+      throw new Error(`Unknown stat type ${args.type}.`);
+    }
+
+    if (!['short_term', 'medium_term', 'long_term'].includes(args.timeline)) {
+      throw new Error(`Unknown timeline ${args.timeline}.`);
+    }
+  }
+}
+
+module.exports = Stats;
