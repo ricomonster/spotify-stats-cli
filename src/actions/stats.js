@@ -2,8 +2,8 @@
 const ora = require('ora');
 
 // Services
-const Configuration = require('./../services/configuration');
-const Spotify = require('./../services/spotify');
+const Configuration = require('../services/configuration');
+const Spotify = require('../services/spotify');
 
 class Stats {
   constructor() {
@@ -13,30 +13,26 @@ class Stats {
   async execute(args) {
     const { type, timeline } = args;
 
-    try {
-      // Let's validate first
-      this._validate(args);
+    // Let's validate first
+    this._validate(args);
 
-      // Now let's get the access tokens so we can prepare our request to Spotify API
-      const accessToken = this.configuration.fetch('accessToken');
-      if (!accessToken) {
-        throw new Error('Access token is required.');
-      }
-
-      // Show spinner
-      const spinner = ora('Fetching...').start();
-
-      // Fetch the list
-      const stats = await this._getStats(type, timeline, accessToken);
-
-      // Hide spinner
-      spinner.stop();
-
-      // Return whatever we have
-      return stats;
-    } catch (error) {
-      throw error;
+    // Now let's get the access tokens so we can prepare our request to Spotify API
+    const accessToken = this.configuration.fetch('accessToken');
+    if (!accessToken) {
+      throw new Error('Access token is required.');
     }
+
+    // Show spinner
+    const spinner = ora('Fetching...').start();
+
+    // Fetch the list
+    const stats = await this._getStats(type, timeline, accessToken);
+
+    // Hide spinner
+    spinner.stop();
+
+    // Return whatever we have
+    return stats;
   }
 
   /**
@@ -50,14 +46,10 @@ class Stats {
   async _getStats(type, timeline, accessToken) {
     const spotify = new Spotify({ accessToken });
 
-    try {
-      const response = await spotify.getUserTop(type, { time_range: timeline });
-      const { items } = response.data;
+    const response = await spotify.getUserTop(type, { time_range: timeline });
+    const { items } = response.data;
 
-      return items;
-    } catch (error) {
-      console.error(error);
-    }
+    return items;
   }
 
   /**

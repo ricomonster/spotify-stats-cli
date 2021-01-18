@@ -1,11 +1,12 @@
 const chalk = require('chalk');
-const log = console.log;
+
+const { log } = console;
 
 // Actions
 const Auth = require('./auth');
 
 // Services
-const Configuration = require('./../services/configuration');
+const Configuration = require('../services/configuration');
 
 class Config {
   constructor() {
@@ -16,22 +17,18 @@ class Config {
   async execute(args) {
     const { clientId, clientSecret } = args;
 
-    try {
-      // Tell the user what we're going to do
-      log(chalk.blue('Storing credentials...'));
+    // Tell the user what we're going to do
+    log(chalk.blue('Storing credentials...'));
 
-      // Let's store the credentials
-      this.storeCredentials(clientId, clientSecret);
+    // Let's store the credentials
+    this.storeCredentials(clientId, clientSecret);
 
-      // Notify the user
-      log(chalk.green('Credentials stored!'));
+    // Notify the user
+    log(chalk.green('Credentials stored!'));
 
-      // TODO: Ask user if it wants to login
+    // TODO: Ask user if it wants to login
 
-      return this.auth.process();
-    } catch (error) {
-      console.error(error);
-    }
+    return this.auth.process();
   }
 
   storeCredentials(clientId, clientSecret) {

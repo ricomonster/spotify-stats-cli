@@ -1,7 +1,7 @@
 const Table = require('cli-table3');
 const chalk = require('chalk');
 
-const log = console.log;
+const { log } = console;
 
 const renderTitle = (type, range) => {
   let rangeTitle;
@@ -29,7 +29,7 @@ const renderTrackList = (tracks) => {
     head: ['Rank', 'Title', 'Artist'],
   });
 
-  tracks.forEach((track, index) => {
+  tracks.forEach((track) => {
     const artists = [];
     const { artists: trackArtists, rank, change, state } = track;
 
@@ -49,7 +49,7 @@ const renderTrackList = (tracks) => {
     table.push([ranking, track.name, artists.join(', ')]);
   });
 
-  console.log(table.toString());
+  log(table.toString());
 };
 
 const renderArtistList = (artists) => {
@@ -73,7 +73,7 @@ const renderArtistList = (artists) => {
     table.push([ranking, artist.name]);
   });
 
-  console.log(table.toString());
+  log(table.toString());
 };
 
 module.exports = ({ data, type, timeline }) => {

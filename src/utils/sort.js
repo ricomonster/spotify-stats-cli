@@ -1,98 +1,90 @@
-const Storage = require('./../services/storage');
+const Storage = require('../services/storage');
 
 class Sort {
-  constructor() {}
-
   async stats(data, stats) {
     const { type, timeline } = stats;
 
-    try {
-      // CGet and compute the current timestamp
-      const currentTimestamp = Math.round(new Date().getTime() / 1000);
+    // Get and compute the current timestamp
+    const currentTimestamp = Math.round(new Date().getTime() / 1000);
 
-      // Generate the filename for this stats
-      const filename = [type, timeline].join('-').replace('_', '-');
+    // Generate the filename for this stats
+    const filename = [type, timeline].join('-').replace('_', '-');
 
-      // Retrieve it
-      const storedStats = await this._getStoredStats(filename);
+    // Retrieve it
+    const storedStats = await this._getStoredStats(filename);
 
-      // Sort the data
-      const newStatsData = this._sortArrayData(data);
-      const oldStatsData = this._sortArrayData(storedStats);
+    // Sort the data
+    const newStatsData = this._sortArrayData(data);
+    const oldStatsData = this._sortArrayData(storedStats);
 
-      let updatedStats = [];
-      let returningStats = [];
-      Object.keys(newStatsData).forEach((id, index) => {
-        // So we can easily access the content
-        const stat = newStatsData[id];
+    const updatedStats = [];
+    const returningStats = [];
+    Object.keys(newStatsData).forEach((id, index) => {
+      // So we can easily access the content
+      const stat = newStatsData[id];
 
-        // Compute the rank
-        let rank = index + 1;
-        let previousRank = 0;
-        let state = 'none';
-        let change = 0;
-        let timestamp = currentTimestamp;
+      // Compute the rank
+      const rank = index + 1;
+      let previousRank = 0;
+      let state = 'none';
+      let change = 0;
+      const timestamp = currentTimestamp;
 
-        // Check if the incoming data is already existing
-        if (oldStatsData[id]) {
-          if (oldStatsData[id].rank === rank) {
-            previousRank = oldStatsData[id].previousRank;
-          } else {
-            previousRank = oldStatsData[id].rank;
-          }
+      // Check if the incoming data is already existing
+      if (oldStatsData[id]) {
+        if (oldStatsData[id].rank === rank) {
+          previousRank = oldStatsData[id].previousRank;
         } else {
-          // This is a new data
-          state = 'new';
+          previousRank = oldStatsData[id].rank;
+        }
+      } else {
+        // This is a new data
+        state = 'new';
+      }
+
+      // Let's check if there's a change in the rank
+      if (previousRank === 0) {
+        state = 'new';
+      } else if (rank !== previousRank) {
+        // There' a change in its rank
+        // Compute
+        if (previousRank > rank) {
+          state = 'up';
+          change = previousRank - rank;
         }
 
-        // Let's check if there's a change in the rank
-        if (previousRank === 0) {
-          state = 'new';
-        } else {
-          if (rank !== previousRank) {
-            // There' a change in its rank
-            // Compute
-            if (previousRank > rank) {
-              state = 'up';
-              change = previousRank - rank;
-            }
-
-            if (previousRank < rank) {
-              state = 'down';
-              change = rank - previousRank;
-            }
-          }
+        if (previousRank < rank) {
+          state = 'down';
+          change = rank - previousRank;
         }
+      }
 
-        // console.log(id, rank, previousRank, state, change);
+      // console.log(id, rank, previousRank, state, change);
 
-        // Push data to be stored for comparison later
-        updatedStats.push({
-          id: stat.id,
-          rank,
-          previousRank,
-          timestamp,
-        });
-
-        // Push data to display
-        returningStats.push({
-          ...stat,
-          rank,
-          previousRank,
-          change,
-          state,
-        });
+      // Push data to be stored for comparison later
+      updatedStats.push({
+        id: stat.id,
+        rank,
+        previousRank,
+        timestamp,
       });
 
-      // Store the updated
-      const storage = new Storage(filename);
-      await storage.store(JSON.stringify(updatedStats));
+      // Push data to display
+      returningStats.push({
+        ...stat,
+        rank,
+        previousRank,
+        change,
+        state,
+      });
+    });
 
-      // Return the stats we're going to show
-      return returningStats;
-    } catch (error) {
-      throw error;
-    }
+    // Store the updated
+    const storage = new Storage(filename);
+    await storage.store(JSON.stringify(updatedStats));
+
+    // Return the stats we're going to show
+    return returningStats;
   }
 
   async _getStoredStats(filename) {

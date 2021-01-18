@@ -1,4 +1,4 @@
-const { Command, program } = require('commander');
+const { program } = require('commander');
 
 // Actions
 const Config = require('./actions/config');
@@ -7,6 +7,8 @@ const Stats = require('./actions/stats');
 // Utils
 const render = require('./utils/render');
 const Sort = require('./utils/sort');
+
+const { error: errorLog } = console;
 
 const cli = () => {
   program.version('1.1.0').description('Spotify Stats CLI.');
@@ -20,7 +22,7 @@ const cli = () => {
     .requiredOption('--clientSecret <clientSecret>', 'sets or shows the Client Secret.')
     .action(async (cmd) => {
       const config = new Config();
-      const result = await config.execute({
+      await config.execute({
         clientId: cmd.clientId,
         clientSecret: cmd.clientSecret,
       });
@@ -60,7 +62,8 @@ const cli = () => {
         // Render
         return render({ data: statList, type: 'artists', timeline });
       } catch (error) {
-        console.error(error);
+        errorLog(error);
+        return false;
       }
     });
 
@@ -98,7 +101,8 @@ const cli = () => {
         // Render
         return render({ data: statList, type: 'tracks', timeline });
       } catch (error) {
-        console.error(error);
+        errorLog(error);
+        return false;
       }
     });
 

@@ -13,7 +13,8 @@
     "class-methods-use-this": "off",
     "new-cap": ["error", { "properties": false }],
     "no-param-reassign": ["error", { "props": false }],
-    "prettier/prettier": ["error"]
+    "prettier/prettier": ["error"],
+    "no-underscore-dangle": "off"
   },
   "settings": {
     "import/resolver": {

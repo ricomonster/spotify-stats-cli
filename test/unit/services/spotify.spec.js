@@ -1,6 +1,7 @@
 const { expect } = require('chai');
 const sinon = require('sinon');
 const axios = require('axios');
+
 const sandbox = sinon.createSandbox();
 
 // Support
@@ -11,7 +12,7 @@ const Spotify = require('src/services/spotify');
 
 describe('Services :: Spotify', () => {
   context('should work properly', () => {
-    afterEach(function () {
+    afterEach(() => {
       sandbox.restore();
     });
 

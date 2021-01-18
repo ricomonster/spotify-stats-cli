@@ -5,11 +5,11 @@ const http = require('http');
 const chalk = require('chalk');
 const url = require('url');
 
-const log = console.log;
+const { log } = console;
 
 // Services
-const Configuration = require('./../services/configuration');
-const Spotify = require('./../services/spotify');
+const Configuration = require('../services/configuration');
+const Spotify = require('../services/spotify');
 
 class Auth {
   constructor() {
@@ -17,58 +17,46 @@ class Auth {
   }
 
   async process() {
-    try {
-      // Get the client id and secret
-      const { clientId, clientSecret } = this._getClientKeys();
+    // Get the client id and secret
+    const { clientId, clientSecret } = this._getClientKeys();
 
-      // Open the browser
-      const spinner = ora('Opening your default browser for Spotify authentication...').start();
-      await this._openBrowser(clientId);
+    // Open the browser
+    const spinner = ora('Opening your default browser for Spotify authentication...').start();
+    await this._openBrowser(clientId);
 
-      spinner.text = 'Waiting for response from Spotify...';
+    spinner.text = 'Waiting for response from Spotify...';
 
-      // Start a HTTP Server to listen for callback
-      const code = await this._callbackServer();
+    // Start a HTTP Server to listen for callback
+    const code = await this._callbackServer();
 
-      spinner.stop();
-      log(chalk.green('Authentication with Spotify is a success!'));
+    spinner.stop();
+    log(chalk.green('Authentication with Spotify is a success!'));
 
-      // Let's get the access token from spotify
-      spinner.start('Fetching tokens...');
-      const { accessToken, refreshToken } = await this._getAccessToken(
-        code,
-        clientId,
-        clientSecret
-      );
+    // Let's get the access token from spotify
+    spinner.start('Fetching tokens...');
+    const { accessToken, refreshToken } = await this._getAccessToken(code, clientId, clientSecret);
 
-      // Save the tokens
-      this.configuration.store('accessToken', accessToken);
-      this.configuration.store('refreshToken', refreshToken);
+    // Save the tokens
+    this.configuration.store('accessToken', accessToken);
+    this.configuration.store('refreshToken', refreshToken);
 
-      spinner.stop();
-      log(chalk.green('You can now start fetching your stats. :)'));
+    spinner.stop();
+    log(chalk.green('You can now start fetching your stats. :)'));
 
-      return Promise.resolve();
-    } catch (error) {
-      console.error(error);
-    }
+    return Promise.resolve();
   }
 
   async _getAccessToken(code, clientId, clientSecret) {
     // Instantiate the Spotify service
     const spotify = new Spotify({ clientId, clientSecret });
 
-    try {
-      const response = await spotify.getAccessToken(code);
-      const { access_token, refresh_token } = response.data;
+    const response = await spotify.getAccessToken(code);
+    const { access_token: accessToken, refresh_token: refreshToken } = response.data;
 
-      return {
-        accessToken: access_token,
-        refreshToken: refresh_token,
-      };
-    } catch (error) {
-      throw error;
-    }
+    return {
+      accessToken,
+      refreshToken,
+    };
   }
 
   /**
@@ -85,7 +73,7 @@ class Auth {
    * Opens up the authorize page in Spotify.
    */
   async _openBrowser(clientId) {
-    const url = `https://accounts.spotify.com/authorize`;
+    const authorizeUrl = `https://accounts.spotify.com/authorize`;
     const params = {
       client_id: clientId,
       response_type: 'code',
@@ -93,7 +81,7 @@ class Auth {
       scope: 'user-read-private,user-read-email,user-top-read,user-read-recently-played',
     };
 
-    const browserUrl = `${url}?${queryString.stringify(params)}`;
+    const browserUrl = `${authorizeUrl}?${queryString.stringify(params)}`;
     return open(browserUrl);
   }
 
@@ -101,7 +89,7 @@ class Auth {
    * Creates a basic HTTP server to listen the callback url and get the code from Spotify.
    */
   _callbackServer() {
-    return new Promise((resolve, reject) => {
+    return new Promise((resolve) => {
       const server = http
         .createServer(async (req, res) => {
           const parsedUrl = url.parse(req.url, true);
@@ -119,6 +107,8 @@ class Auth {
 
             return resolve(code);
           }
+
+          return false;
         })
         .listen(8080);
     });

@@ -1,5 +1,4 @@
 const { expect } = require('chai');
-const sinon = require('sinon');
 
 // Support
 const { spotify: spotifyMock, storage } = require('test/support/mock');
@@ -20,8 +19,8 @@ describe('Utils :: Sort', () => {
 
     after(async () => {
       // Remove the file
-      const storage = new Storage('artists-test');
-      await storage.remove();
+      const storageClass = new Storage('artists-test');
+      await storageClass.remove();
     });
 
     it('should sort and return something', async () => {
