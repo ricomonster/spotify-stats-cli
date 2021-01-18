@@ -33,6 +33,9 @@ jobs:
       - name: Run Coverage
         run: npm run coverage
 
+      - name: Run Linters
+        run: npm run lint
+
       - name: Coveralls
         uses: coverallsapp/github-action@master
         env:
