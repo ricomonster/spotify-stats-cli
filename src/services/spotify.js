@@ -47,6 +47,19 @@ class Spotify {
   }
 
   /**
+   * Refreshes the tokens that are being used in accessing the API
+   *
+   * @param {String}
+   * @returns {Promise}
+   */
+  refreshTokens(token) {
+    return this._tokenRequest({
+      grant_type: 'refresh_token',
+      refresh_token: token,
+    });
+  }
+
+  /**
    * Validates if the access token is provided.
    *
    * @returns {Error|Boolean}

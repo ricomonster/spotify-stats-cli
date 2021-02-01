@@ -41,15 +41,42 @@ class Stats {
    * @param {String} type
    * @param {String} timeline
    * @param {String} accessToken
-   * @returns {Object}
+   * @returns {Object|Promise}
    */
   async _getStats(type, timeline, accessToken) {
-    const spotify = new Spotify({ accessToken });
+    try {
+      const spotify = new Spotify({ accessToken });
+      const response = await spotify.getUserTop(type, { time_range: timeline });
+      const { items } = response.data;
 
-    const response = await spotify.getUserTop(type, { time_range: timeline });
-    const { items } = response.data;
+      return items;
+    } catch (error) {
+      if (error && error.response && error.response.status === 401) {
+        // Expired token
+        const newAccessToken = await this._refreshAccessTokens();
 
-    return items;
+        // Retry the request
+        return this._getStats(type, timeline, newAccessToken);
+      }
+    }
+
+    return false;
+  }
+
+  async _refreshAccessTokens() {
+    // Get the needed parameters from the config
+    const clientId = this.configuration.fetch('clientId');
+    const clientSecret = this.configuration.fetch('clientSecret');
+    const refreshToken = this.configuration.fetch('refreshToken');
+
+    const spotify = new Spotify({ clientId, clientSecret });
+    const response = await spotify.refreshTokens(refreshToken);
+    const { access_token: accessToken } = response.data;
+
+    // Save the new access token
+    this.configuration.store('accessToken', accessToken);
+
+    return accessToken;
   }
 
   /**

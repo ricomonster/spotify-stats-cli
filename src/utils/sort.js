@@ -28,12 +28,13 @@ class Sort {
       let previousRank = 0;
       let state = 'none';
       let change = 0;
-      const timestamp = currentTimestamp;
+      let timestamp = currentTimestamp;
 
       // Check if the incoming data is already existing
       if (oldStatsData[id]) {
         if (oldStatsData[id].rank === rank) {
           previousRank = oldStatsData[id].previousRank;
+          timestamp = oldStatsData[id].timestamp;
         } else {
           previousRank = oldStatsData[id].rank;
         }
@@ -45,6 +46,13 @@ class Sort {
       // Let's check if there's a change in the rank
       if (previousRank === 0) {
         state = 'new';
+
+        // const difference = currentTimestamp - oldStatsData[stat.id].timestamp;
+        // console.log(id, difference);
+        // if (difference >= 172800) {
+        //   // Update to the current
+        //   timestamp = currentTimestamp;
+        // }
       } else if (rank !== previousRank) {
         // There' a change in its rank
         // Compute
@@ -59,7 +67,7 @@ class Sort {
         }
       }
 
-      // console.log(id, rank, previousRank, state, change);
+      console.log(id, rank, previousRank, state, change);
 
       // Push data to be stored for comparison later
       updatedStats.push({
