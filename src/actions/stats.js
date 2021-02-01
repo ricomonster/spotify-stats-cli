@@ -69,6 +69,8 @@ class Stats {
     const clientSecret = this.configuration.fetch('clientSecret');
     const refreshToken = this.configuration.fetch('refreshToken');
 
+    console.log('rr', refreshToken);
+
     const spotify = new Spotify({ clientId, clientSecret });
     const response = await spotify.refreshTokens(refreshToken);
     const { access_token: accessToken } = response.data;

@@ -1,7 +1,5 @@
 const { expect } = require('chai');
 const sinon = require('sinon');
-const axios = require('axios');
-const qs = require('query-string');
 
 const sandbox = sinon.createSandbox();
 

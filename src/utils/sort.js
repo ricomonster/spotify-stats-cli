@@ -19,6 +19,7 @@ class Sort {
 
     const updatedStats = [];
     const returningStats = [];
+    const genres = [];
     Object.keys(newStatsData).forEach((id, index) => {
       // So we can easily access the content
       const stat = newStatsData[id];
@@ -38,36 +39,42 @@ class Sort {
         } else {
           previousRank = oldStatsData[id].rank;
         }
+
+        // Check when what the data last updated.
+        const difference = currentTimestamp - oldStatsData[stat.id].timestamp;
+
+        // Is it more than 2 days?
+        if (difference > 172800) {
+          state = 'none';
+        }
+
+        if (difference < 172800) {
+          if (previousRank === 0) {
+            state = 'new';
+          } else if (rank !== previousRank) {
+            // There' a change in its rank
+            // Compute
+            if (previousRank > rank) {
+              state = 'up';
+              change = previousRank - rank;
+            }
+
+            if (previousRank < rank) {
+              state = 'down';
+              change = rank - previousRank;
+            }
+          }
+        }
       } else {
         // This is a new data
         state = 'new';
       }
 
-      // Let's check if there's a change in the rank
-      if (previousRank === 0) {
-        state = 'new';
-
-        // const difference = currentTimestamp - oldStatsData[stat.id].timestamp;
-        // console.log(id, difference);
-        // if (difference >= 172800) {
-        //   // Update to the current
-        //   timestamp = currentTimestamp;
-        // }
-      } else if (rank !== previousRank) {
-        // There' a change in its rank
-        // Compute
-        if (previousRank > rank) {
-          state = 'up';
-          change = previousRank - rank;
-        }
-
-        if (previousRank < rank) {
-          state = 'down';
-          change = rank - previousRank;
-        }
+      if (stat.genres && stat.genres.length > 0) {
+        stat.genres.forEach((g) => {
+          genres[g] = genres[g] ? genres[g] + 1 : 1;
+        });
       }
-
-      console.log(id, rank, previousRank, state, change);
 
       // Push data to be stored for comparison later
       updatedStats.push({
@@ -86,6 +93,8 @@ class Sort {
         state,
       });
     });
+
+    // console.log(genres);
 
     // Store the updated
     const storage = new Storage(filename);
