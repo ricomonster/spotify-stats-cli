@@ -30,20 +30,18 @@ const renderTrackList = (tracks) => {
   });
 
   tracks.forEach((track) => {
-    const artists = [];
     const { artists: trackArtists, rank, change, state } = track;
 
     // Get the artists as there's a possibility to have multiple artists
-    trackArtists.forEach((artist) => {
-      artists.push(artist.name);
-    });
+    const artists = trackArtists.map((artist) => artist.name);
 
     // Determine what to show for rank change
     let ranking = rank;
     if (state === 'new') {
       ranking = `${ranking} (new)`;
     } else {
-      ranking = `${ranking}${state === 'none' ? '' : ` (${change})`}`;
+      const symbol = state === 'up' ? '+' : '-';
+      ranking = `${ranking}${state === 'none' ? '' : ` (${symbol}${change})`}`;
     }
 
     table.push([ranking, track.name, artists.join(', ')]);
@@ -67,7 +65,8 @@ const renderArtistList = (artists) => {
     if (state === 'new') {
       ranking = `${ranking} (new)`;
     } else {
-      ranking = `${ranking}${state === 'none' ? '' : ` (${change})`}`;
+      const symbol = state === 'up' ? '+' : '-';
+      ranking = `${ranking}${state === 'none' ? '' : ` (${symbol}${change})`}`;
     }
 
     table.push([ranking, artist.name]);

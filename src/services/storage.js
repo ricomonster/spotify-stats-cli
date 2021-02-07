@@ -2,7 +2,8 @@ const fs = require('fs');
 const path = require('path');
 
 class Storage {
-  constructor(filename) {
+  constructor(folder, filename) {
+    this.folder = folder;
     this.filename = filename;
   }
 
@@ -39,8 +40,8 @@ class Storage {
    * @returns {String}
    */
   async store(data) {
-    // Check the storage directory first
-    this._createStorageDirectory();
+    // Check if the folder is already created.
+    this._createFolderDirectory();
 
     // Generate the filename
     const filename = this._generateFilename();
@@ -66,13 +67,16 @@ class Storage {
   }
 
   /**
-   * Creates a storage directory.
+   * Creates the directory.
    *
    * @returns {Boolean}
    */
-  _createStorageDirectory() {
-    const directoryPath = path.join(path.resolve('./'), 'storage');
+  _createFolderDirectory() {
+    if (!this.folder) {
+      throw new Error('Folder name is required.');
+    }
 
+    const directoryPath = path.join(path.resolve('./'), this.folder);
     if (!fs.existsSync(directoryPath)) {
       fs.mkdirSync(directoryPath);
     }
@@ -86,13 +90,17 @@ class Storage {
    * @returns {String}
    */
   _generateFilename() {
+    if (!this.folder) {
+      throw new Error('Folder name is required.');
+    }
+
     if (!this.filename) {
       throw new Error('Filename is required.');
     }
 
     return [
       path.resolve('./'),
-      'storage',
+      this.folder,
       this.filename.indexOf('.json') === -1 ? `${this.filename}.json` : this.filename,
     ].join('/');
   }

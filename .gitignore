@@ -2,3 +2,4 @@ storage/
 node_modules/
 .nyc_output/
 coverage/
+cache/

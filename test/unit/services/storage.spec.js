@@ -1,5 +1,6 @@
 const { expect, assert } = require('chai');
 const fs = require('fs');
+const path = require('path');
 
 const Storage = require('src/services/storage');
 
@@ -9,7 +10,12 @@ describe('Services :: Storage', () => {
     let fileLocation;
 
     before(() => {
-      storageClass = new Storage('foobar.json');
+      storageClass = new Storage('test-storage', 'foobar.json');
+    });
+
+    after(() => {
+      // Delete the test-storage folder
+      fs.rmdirSync([path.resolve('./'), 'test-storage'].join('/'));
     });
 
     it('should create a file and store it', async () => {
@@ -34,9 +40,27 @@ describe('Services :: Storage', () => {
   });
 
   context('it should not work properly', () => {
-    it('should return an error that filename is required', async () => {
+    it('should return an error that folder is required when storing', async () => {
       try {
         const storageClass = new Storage();
+        await storageClass.store(JSON.stringify({ test: '1234567890' }));
+      } catch (error) {
+        expect(error.message).to.be.equal('Folder name is required.');
+      }
+    });
+
+    it('should return an error that folder is required when fetching', async () => {
+      try {
+        const storageClass = new Storage();
+        await storageClass.get();
+      } catch (error) {
+        expect(error.message).to.be.equal('Folder name is required.');
+      }
+    });
+
+    it('should return an error that filename is required', async () => {
+      try {
+        const storageClass = new Storage('storage');
         await storageClass.store(JSON.stringify({ test: '1234567890' }));
       } catch (error) {
         expect(error.message).to.be.equal('Filename is required.');
@@ -45,7 +69,7 @@ describe('Services :: Storage', () => {
 
     it('should return an error due to the file does not exists', async () => {
       try {
-        const storageClass = new Storage('foo-bar.json');
+        const storageClass = new Storage('storage', 'foo-bar.json');
         await storageClass.get();
       } catch (error) {
         expect(error.message).to.be.equal('File does not exists.');
@@ -54,7 +78,7 @@ describe('Services :: Storage', () => {
 
     it('should return an error due to the file does not exists when trying to remove', async () => {
       try {
-        const storageClass = new Storage('foo-bar.json');
+        const storageClass = new Storage('storage', 'foo-bar.json');
         await storageClass.remove();
       } catch (error) {
         expect(error.message).to.be.equal('File does not exists.');

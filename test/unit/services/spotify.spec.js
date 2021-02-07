@@ -50,6 +50,24 @@ describe('Services :: Spotify', () => {
       expect(response.data).to.have.property('items');
       expect(response.data.items).to.be.an('array');
     });
+
+    it('should return a refreshed tokens', async () => {
+      const spotifyClass = new Spotify({
+        clientId: '1234567890',
+        clientSecret: '0987654321',
+      });
+
+      sandbox
+        .stub(axios, 'post')
+        .resolves(Promise.resolve({ data: { access_token: '1234567890' } }));
+
+      const response = await spotifyClass.refreshTokens('token');
+
+      expect(response).to.be.an('object');
+      expect(response).to.have.property('data');
+      expect(response.data).to.have.property('access_token');
+      expect(response.data.access_token).to.be.equal('1234567890');
+    });
   });
 
   context('should not work properly', () => {
