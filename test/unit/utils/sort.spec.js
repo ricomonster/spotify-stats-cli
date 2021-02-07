@@ -13,13 +13,25 @@ describe('Utils :: Sort', () => {
   context('should work properly', () => {
     let sortClassWithContent;
     before(async () => {
-      sortClassWithContent = new Storage('artists-test-content');
+      sortClassWithContent = new Storage('storage', 'artists-test-content');
+
+      // Let's manipulate some records
+      const timestamp = Math.round(new Date().getTime() / 1000);
+      storage.artists[10].timestamp = timestamp;
+      storage.artists[10].previousRank = 20;
+
+      storage.artists[11].timestamp = timestamp;
+      storage.artists[11].previousRank = 10;
+
+      storage.artists[9].timestamp = timestamp;
+      storage.artists[9].previousRank = 0;
+
       await sortClassWithContent.store(JSON.stringify(storage.artists));
     });
 
     after(async () => {
       // Remove the file
-      const storageClass = new Storage('artists-test');
+      const storageClass = new Storage('storage', 'artists-test');
       await storageClass.remove();
     });
 

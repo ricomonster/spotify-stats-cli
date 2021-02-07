@@ -7,6 +7,7 @@ const sandbox = sinon.createSandbox();
 const Stats = require('src/actions/stats');
 
 // Services
+const Cache = require('src/services/cache');
 const Configuration = require('src/services/configuration');
 const Spotify = require('src/services/spotify');
 
@@ -39,6 +40,7 @@ describe('Actions :: Stats', () => {
       sandbox
         .stub(Spotify.prototype, 'getUserTop')
         .resolves(Promise.resolve({ data: spotifyMock.getUserTopArtists }));
+      sandbox.stub(Cache.prototype, 'store').resolves(Promise.resolve());
 
       const response = await statsClass.execute({ type: 'artists', timeline: 'short_term' });
 
@@ -48,6 +50,8 @@ describe('Actions :: Stats', () => {
     });
 
     it('should try to fetch the list and refresh for tokens', async () => {
+      sandbox.stub(Cache.prototype, 'store').resolves(Promise.resolve());
+
       const mockConfigFetch = sandbox.stub(Configuration.prototype, 'fetch');
       const mockSpotifyGetUserTop = sandbox.stub(Spotify.prototype, 'getUserTop');
 
@@ -66,6 +70,19 @@ describe('Actions :: Stats', () => {
       sandbox
         .stub(Spotify.prototype, 'refreshTokens')
         .resolves(Promise.resolve({ data: { access_token: '1234567890' } }));
+
+      const response = await statsClass.execute({ type: 'artists', timeline: 'short_term' });
+
+      expect(response).to.be.an('array');
+      expect(response[0]).to.be.an('object');
+      expect(response[0]).to.have.property('external_urls');
+    });
+
+    it('should return a cached stats', async () => {
+      sandbox.stub(Configuration.prototype, 'fetch').returns('1234567890');
+      sandbox
+        .stub(Cache.prototype, 'get')
+        .resolves(Promise.resolve(spotifyMock.getUserTopArtists.items));
 
       const response = await statsClass.execute({ type: 'artists', timeline: 'short_term' });
 

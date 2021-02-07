@@ -65,6 +65,8 @@ class Sort {
             }
           }
         }
+
+        // console.log(id, rank, previousRank, state, change, difference);
       } else {
         // This is a new data
         state = 'new';
@@ -97,7 +99,7 @@ class Sort {
     // console.log(genres);
 
     // Store the updated
-    const storage = new Storage(filename);
+    const storage = new Storage('storage', filename);
     await storage.store(JSON.stringify(updatedStats));
 
     // Return the stats we're going to show
@@ -107,7 +109,7 @@ class Sort {
   async _getStoredStats(filename) {
     // Retrieve it from the storage
     try {
-      const storage = new Storage(filename);
+      const storage = new Storage('storage', filename);
       const content = await storage.get();
 
       return content && content.length > 0 ? JSON.parse(content) : [];
