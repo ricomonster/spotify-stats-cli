@@ -50,6 +50,7 @@ describe('Actions :: Stats', () => {
     });
 
     it('should try to fetch the list and refresh for tokens', async () => {
+      sandbox.stub(Cache.prototype, 'get').resolves(Promise.resolve([]));
       sandbox.stub(Cache.prototype, 'store').resolves(Promise.resolve());
 
       const mockConfigFetch = sandbox.stub(Configuration.prototype, 'fetch');

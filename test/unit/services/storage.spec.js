@@ -15,7 +15,7 @@ describe('Services :: Storage', () => {
 
     after(() => {
       // Delete the test-storage folder
-      fs.rmdirSync([path.resolve('./'), 'test-storage'].join('/'));
+      fs.rmdirSync([path.resolve('./'), '.spotify-stats', 'test-storage'].join('/'));
     });
 
     it('should create a file and store it', async () => {

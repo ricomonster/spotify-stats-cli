@@ -1,5 +1,4 @@
-storage/
+.spotify-stats/
 node_modules/
 .nyc_output/
 coverage/
-cache/
