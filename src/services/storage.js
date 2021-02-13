@@ -5,6 +5,7 @@ class Storage {
   constructor(folder, filename) {
     this.folder = folder;
     this.filename = filename;
+    this.cwd = '.spotify-stats';
   }
 
   /**
@@ -76,8 +77,14 @@ class Storage {
       throw new Error('Folder name is required.');
     }
 
-    const directoryPath = path.join(path.resolve('./'), this.folder);
+    const directoryPath = path.join(path.resolve('./'), this.cwd, this.folder);
     if (!fs.existsSync(directoryPath)) {
+      // Check first if the .spotify-stats folder is created
+      if (!fs.existsSync(path.join(path.resolve('./'), this.cwd))) {
+        // Create
+        fs.mkdirSync(path.join(path.resolve('./'), this.cwd));
+      }
+
       fs.mkdirSync(directoryPath);
     }
 
@@ -100,6 +107,7 @@ class Storage {
 
     return [
       path.resolve('./'),
+      this.cwd,
       this.folder,
       this.filename.indexOf('.json') === -1 ? `${this.filename}.json` : this.filename,
     ].join('/');
