@@ -7,10 +7,14 @@
     "test": "nyc npm run test:unit",
     "test:unit": "cross-env NODE_PATH=. NODE_ENV=test mocha --config test/unit.mocharc.js",
     "coverage": "nyc report --reporter=lcov --reporter=text-lcov | coveralls",
-    "lint": "eslint --ignore-path .gitignore .",
+    "lint": "eslint src/ --ignore-path .gitignore",
     "precommit-msg": "echo 'Pre-commit checks...' && exit 0"
   },
-  "pre-commit": ["precommit-msg", "test", "lint"],
+  "pre-commit": [
+    "precommit-msg",
+    "test",
+    "lint"
+  ],
   "repository": {
     "type": "git",
     "url": "git+https://github.com/ricomonster/spotify-stats-cli.git"
