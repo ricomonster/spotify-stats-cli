@@ -4,6 +4,8 @@ const queryString = require('query-string');
 const http = require('http');
 const chalk = require('chalk');
 const url = require('url');
+const fs = require('fs');
+const path = require('path');
 
 const { log } = console;
 
@@ -98,7 +100,15 @@ class Auth {
           if (parsedUrl.pathname === '/callback') {
             const { code } = parsedUrl.query;
 
+            const successHtmlPage = fs.readFileSync(
+              path.join(`${__dirname}/../page/success.html`),
+              'utf-8'
+            );
+
+            res.writeHead(200, { 'Content-Type': 'text/html' });
+            res.write(successHtmlPage);
             res.end();
+
             req.connection.end();
             req.connection.destroy();
 
